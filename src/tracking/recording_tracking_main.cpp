@@ -52,6 +52,8 @@ void recording_tracking_main(const char* path) {
     // retrieve frames per second
     double fps = feed.get(CV_CAP_PROP_FPS);
     
+    // display information
+    cout << "Video found. Press esc to quit program." << endl;
     
     namedWindow("Pupil Tracking",CV_WINDOW_AUTOSIZE);
     
