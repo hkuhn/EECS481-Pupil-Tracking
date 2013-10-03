@@ -36,6 +36,8 @@
 // HEADER FILES
 /////////////////////////////////////////////
 #include "pupil_tracking_main.h"
+#include "tracking/recording_tracking_main.h"
+#include "tracking/camera_tracking_main.h"
 
 
 /////////////////////////////////////////////
@@ -51,6 +53,8 @@
 #include <opencv2/objdetect/objdetect.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
+
 
 
 /////////////////////////////////////////////
@@ -84,10 +88,12 @@ int main( int argc, const char** argv )
         
         // PRE-RECORDED FILE
         case 1:
+            recording_tracking_main(argv[2]);
             break;
         
         // RUN WEBCAM
         case 2:
+            camera_tracking_main();
             break;
             
         // ERROR

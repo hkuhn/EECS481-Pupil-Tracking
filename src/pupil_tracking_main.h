@@ -1,8 +1,8 @@
-//
+//  EECS481: DrawFree - Pupil Tracking
 //  pupil_tracking_main.h
 //  
 //
-//  Created by Hobey Kuhn on 10/2/13.
+//
 //
 //
 
