@@ -86,6 +86,7 @@ void recording_tracking_main(const char* path) {
     {
         Mat frame;
         Mat grayscaleFrame;
+        Mat blurredFrame;
         
         bool bSuccess = feed.read(frame); // read a new frame from video
         
@@ -109,10 +110,21 @@ void recording_tracking_main(const char* path) {
         //locate eye regions from faces vector
         pupils = locateEyes(faces);
         
+        //smooth image w/ Gaussian Blur based on faces
+        //detect pupil locations
 		//draw a rectangle for all found faces in the vector array on the original image
         //draw a rectangle for all found eyes in the vector
 		for(int i = 0; i < faces.size(); i++)
 		{
+            
+            //perform gaussian blur before processing gradients
+            Size gaussian_size(5,5);
+            double sigma = 0.005*faces[i].width;
+            GaussianBlur(grayscaleFrame, blurredFrame, gaussian_size, sigma, sigma, BORDER_DEFAULT);
+            
+            //perform gradient method for pupil tracking
+            
+            
 			Point pt1(faces[i].x + faces[i].width, faces[i].y + faces[i].height);
 			Point pt2(faces[i].x, faces[i].y);
             
@@ -130,7 +142,7 @@ void recording_tracking_main(const char* path) {
         
         imshow("Video", frame); //show the frame in "MyVideo" window
         
-        if(waitKey(30) == 27) //wait for 'esc' key press for 30 ms. If 'esc' key is pressed, break loop
+        if(waitKey(1) == 27) //wait for 'esc' key press for 1 ms. If 'esc' key is pressed, break loop
         {
             cout << "esc key is pressed by user" << endl;
             break; 
