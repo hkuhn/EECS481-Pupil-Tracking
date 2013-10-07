@@ -63,58 +63,19 @@ void recording_tracking_main(const char* path) {
     //
     // BUILD FACE TRACKER
     //
-    /* EIGENFACES
-    vector<Mat> images;
-	vector<int> labels;
-    string data_path;
-    
-    cout << "Building face detection model..." << endl;
-    cout << "Path to data: ";
-    cin >> data_path;
-    
-	// path to your CSV
-	string fn_csv = string(data_path);
-	// read in the images
-	try {
-		read_csv(fn_csv, images, labels);
-	} catch(exception& e) {
-		cerr << "Error opening file \"" << fn_csv << "\"." << endl;
-		exit(1);
-	}
-    
-	// get width and height
-	int width = images[0].cols;
-	int height = images[0].rows;
-    
-	// get test instances
-	Mat testSample = images[images.size()-1];
-	int testLabel = labels[labels.size()-1];
-	// ... and delete last element
-	images.pop_back();
-	labels.pop_back();
-    cout << "Data loaded successfully. Please specify number of components: ";
-    int num_components = 80; // default
-    cin >> num_components;
-	// num_components eigenfaces
-	// int num_components = 80;
-	// compute the eigenfaces
-    cout << "Building eigenfaces model..." << endl;
-	Eigenfaces eigenfaces(images, labels, num_components); 
-    */
-    
+    cout << "Building face tracker..." << endl;
 	//create the cascade classifier object used for the face detection
 	CascadeClassifier face_cascade;
 	//use the haarcascade_frontalface_alt.xml library
 	face_cascade.load("../data/haarcascade_frontalface_alt.xml");
     
     
-
-    
     
     //
     // RUN FACE TRACKING ON VIDEO FEED
     //
     // display information
+    cout << "Running video feed..." << endl;
     cout << "Press esc to quit program." << endl;
     
     namedWindow("Pupil Tracking",CV_WINDOW_AUTOSIZE);
@@ -165,31 +126,6 @@ void recording_tracking_main(const char* path) {
     
     return;
 }
-
-
-
-
-void read_csv(const string& filename, vector<Mat>& images, vector<int>& labels) {
-	ifstream file(filename.c_str(), ifstream::in);
-	if(!file)
-		throw std::exception();
-	string line, path, classlabel;
-	// for each line
-	while (std::getline(file, line)) {
-		// get current line
-		stringstream liness(line);
-		// split line
-		getline(liness, path, ';');
-		getline(liness, classlabel);
-		// push pack the data
-		images.push_back(imread(path,0));
-        Mat img = imread(path,0);
-		labels.push_back(atoi(classlabel.c_str()));
-	}
-}
-
-
-
 
 
 

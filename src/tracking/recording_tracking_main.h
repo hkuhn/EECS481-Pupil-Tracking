@@ -17,7 +17,6 @@ using namespace cv;
 
 // FUNCTION DECLARATIONS
 void recording_tracking_main(const char* path);
-void read_csv(const string& filename, vector<Mat>& images, vector<int>& labels);
 
 
 #endif /* defined(____recording_tracking_main__) */
