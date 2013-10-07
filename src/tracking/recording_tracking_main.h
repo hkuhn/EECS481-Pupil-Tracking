@@ -14,9 +14,11 @@
 #include "opencv2/highgui/highgui.hpp"
 
 using namespace cv;
+using namespace std;
 
 // FUNCTION DECLARATIONS
 void recording_tracking_main(const char* path);
+vector<vector<Rect> > locateEyes(vector<Rect> faces);
 
 
 #endif /* defined(____recording_tracking_main__) */

@@ -100,18 +100,32 @@ void recording_tracking_main(const char* path) {
 		equalizeHist(grayscaleFrame, grayscaleFrame);
         
 		//create a vector array to store the face found
-		std::vector<Rect> faces;
+		vector<Rect> faces;
+        vector<vector<Rect> > pupils;
         
 		//find faces and store them in the vector array
 		face_cascade.detectMultiScale(grayscaleFrame, faces, 1.1, 3, CV_HAAR_FIND_BIGGEST_OBJECT|CV_HAAR_SCALE_IMAGE, Size(30,30));
         
+        //locate eye regions from faces vector
+        pupils = locateEyes(faces);
+        
 		//draw a rectangle for all found faces in the vector array on the original image
+        //draw a rectangle for all found eyes in the vector
 		for(int i = 0; i < faces.size(); i++)
 		{
 			Point pt1(faces[i].x + faces[i].width, faces[i].y + faces[i].height);
 			Point pt2(faces[i].x, faces[i].y);
             
+            Point pt3(pupils[i][0].x + pupils[i][0].width, pupils[i][0].y + pupils[i][0].height);
+            Point pt4(pupils[i][0].x, pupils[i][0].y);
+            
+            Point pt5(pupils[i][1].x + pupils[i][1].width, pupils[i][1].y + pupils[i][1].height);
+            Point pt6(pupils[i][1].x, pupils[i][1].y);
+            
 			rectangle(frame, pt1, pt2, cvScalar(0, 255, 0, 0), 1, 8, 0);
+            rectangle(frame, pt3, pt4, cvScalar(255, 0, 0, 0), 1, 8, 0);
+            rectangle(frame, pt5, pt6, cvScalar(255, 0, 0, 0), 1, 8, 0);
+            
 		}
         
         imshow("Video", frame); //show the frame in "MyVideo" window
@@ -126,6 +140,57 @@ void recording_tracking_main(const char* path) {
     
     return;
 }
+
+
+
+// LOCATE EYES
+vector<vector<Rect> > locateEyes(vector<Rect> faces) {
+    // this function locates the eye regions from face bounding boxes
+    // suggested by Timm in his implementation:
+    //  let (x,y) be upper left corner of face detection
+    //  let W, H be width and height of face detection
+    //      mean of right eye center: (x+0.3W, y+0.4H)
+    //      mean of left eye center: (x+0.7W, y+0.4H)
+    //  
+    vector<vector<Rect> > pupils;
+    double eye_box_const = 0.12;
+    
+    // for all faces in vector, find eye boxes
+    for (int i =0; i < faces.size(); i++) {
+        
+        Rect cur_face = faces.at(i);
+        int x = faces[i].x;
+        int y = faces[i].y;
+        int W = faces[i].width;
+        int H = faces[i].height;
+        int eye_width = floor(eye_box_const*W);
+        int eye_height = floor(eye_box_const*H);
+        
+        int right_mean[] = {floor(x+0.3*W), floor(y+0.4*H)};
+        int left_mean[] = {floor(x+0.7*W), floor(y+0.4*H)};
+        
+        Point right_ul_corner(right_mean[0] - eye_width, right_mean[1] - eye_height);
+        Point right_br_corner(right_mean[0] + eye_width, right_mean[1] + eye_height);
+        Point left_ul_corner(left_mean[0] - eye_width, left_mean[1] - eye_height);
+        Point left_br_corner(left_mean[0] + eye_width, left_mean[1] + eye_height);
+        
+        Rect right_eye_box(right_ul_corner, right_br_corner);
+        Rect left_eye_box(left_ul_corner, left_br_corner);
+        
+        vector<Rect> insert;
+        insert.push_back(right_eye_box);
+        insert.push_back(left_eye_box);
+        
+        pupils.push_back(insert);
+        
+    }
+    
+    
+    return pupils;
+    
+}
+
+
 
 
 
