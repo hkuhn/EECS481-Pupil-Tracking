@@ -13,8 +13,6 @@
 // HEADER FILES
 /////////////////////////////////////////////
 #include "recording_tracking_main.h"
-#include "helper.hpp"
-#include "eigenfaces.hpp"
 
 
 
@@ -29,7 +27,9 @@
 #include <string>
 
 // OpenCV
-#include "opencv2/highgui/highgui.hpp"
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 
 
@@ -62,7 +62,8 @@ void recording_tracking_main(const char* path) {
     
     //
     // BUILD FACE TRACKER
-    //    
+    //
+    /* EIGENFACES
     vector<Mat> images;
 	vector<int> labels;
     string data_path;
@@ -98,7 +99,15 @@ void recording_tracking_main(const char* path) {
 	// int num_components = 80;
 	// compute the eigenfaces
     cout << "Building eigenfaces model..." << endl;
-	Eigenfaces eigenfaces(images, labels, num_components);    
+	Eigenfaces eigenfaces(images, labels, num_components); 
+    */
+    
+	//create the cascade classifier object used for the face detection
+	CascadeClassifier face_cascade;
+	//use the haarcascade_frontalface_alt.xml library
+	face_cascade.load("../data/haarcascade_frontalface_alt.xml");
+    
+    
 
     
     
@@ -115,6 +124,7 @@ void recording_tracking_main(const char* path) {
     while(1)
     {
         Mat frame;
+        Mat grayscaleFrame;
         
         bool bSuccess = feed.read(frame); // read a new frame from video
         
@@ -124,6 +134,24 @@ void recording_tracking_main(const char* path) {
             break;
         }
         
+        //convert captured image to gray scale and equalize
+		cvtColor(frame, grayscaleFrame, CV_BGR2GRAY);
+		equalizeHist(grayscaleFrame, grayscaleFrame);
+        
+		//create a vector array to store the face found
+		std::vector<Rect> faces;
+        
+		//find faces and store them in the vector array
+		face_cascade.detectMultiScale(grayscaleFrame, faces, 1.1, 3, CV_HAAR_FIND_BIGGEST_OBJECT|CV_HAAR_SCALE_IMAGE, Size(30,30));
+        
+		//draw a rectangle for all found faces in the vector array on the original image
+		for(int i = 0; i < faces.size(); i++)
+		{
+			Point pt1(faces[i].x + faces[i].width, faces[i].y + faces[i].height);
+			Point pt2(faces[i].x, faces[i].y);
+            
+			rectangle(frame, pt1, pt2, cvScalar(0, 255, 0, 0), 1, 8, 0);
+		}
         
         imshow("Video", frame); //show the frame in "MyVideo" window
         
