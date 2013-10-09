@@ -156,7 +156,9 @@ cv::Point findEyeCenter(cv::Mat face, cv::Rect eye, std::string debugWindow) {
         continue;
       }
       testPossibleCentersFormula(x, y, Wr[x], gX, gY, outSum);
+        x = x + 4;
     }
+      y = y + 4;
   }
   // scale all the values down, basically averaging them
   double numGradients = (weight.rows*weight.cols);
@@ -167,6 +169,8 @@ cv::Point findEyeCenter(cv::Mat face, cv::Rect eye, std::string debugWindow) {
   cv::Point maxP;
   double maxVal;
   cv::minMaxLoc(out, NULL,&maxVal,NULL,&maxP);
+
+    
   //-- Flood fill the edges
   if(kEnablePostProcess) {
     cv::Mat floodClone;

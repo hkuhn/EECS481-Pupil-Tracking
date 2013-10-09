@@ -139,6 +139,7 @@ cv::Point findEyeCenter(cv::Mat face, cv::Rect eye, std::string debugWindow) {
   cv::Point maxP;
   double maxVal;
   cv::minMaxLoc(out, NULL,&maxVal,NULL,&maxP);
+
   //-- Flood fill the edges
   if(kEnablePostProcess) {
     cv::Mat floodClone;
@@ -154,7 +155,14 @@ cv::Point findEyeCenter(cv::Mat face, cv::Rect eye, std::string debugWindow) {
     //imshow(debugWindow,out);
     // redo max
     cv::minMaxLoc(out, NULL,&maxVal,NULL,&maxP,mask);
+
   }
+    
+    if (maxP.y < 10) {
+        maxP.x = 0;
+        maxP.y = 0;
+    }
+    
   return unscalePoint(maxP,eye);
 }
 

@@ -179,8 +179,8 @@ void findEyes(cv::Mat frame_gray, cv::Rect face) {
   leftPupil.x += leftEyeRegion.x;
   leftPupil.y += leftEyeRegion.y;
   // draw eye centers
-    cout << rightPupil << endl;
-    cout << leftPupil << endl;
+    //cout << rightPupil << endl;
+    // cout << leftPupil << endl;
   circle(debugFace, rightPupil, 3, 1234);
   circle(debugFace, leftPupil, 3, 1234);
 
