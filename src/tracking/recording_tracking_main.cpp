@@ -25,6 +25,9 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <queue>
+#include <stdio.h>
+#include <math.h>
 
 // OpenCV
 #include <opencv2/objdetect/objdetect.hpp>
@@ -78,13 +81,17 @@ void recording_tracking_main(const char* path) {
     cout << "Running video feed..." << endl;
     cout << "Press esc to quit program." << endl;
     
-    namedWindow("Pupil Tracking",CV_WINDOW_AUTOSIZE);
+    namedWindow("Video Feed",CV_WINDOW_AUTOSIZE);
+    moveWindow("Video Feed", 400, 100);
+    namedWindow("Debugging Window", CV_WINDOW_AUTOSIZE);
+    
     
     // TEMPORARY
     // We need to create threads to allow for concurrent processes
     while(1)
     {
         Mat frame;
+        Mat debuggingFrame;
         Mat grayscaleFrame;
         Mat blurredFrame;
         
@@ -99,6 +106,9 @@ void recording_tracking_main(const char* path) {
         //convert captured image to gray scale and equalize
 		cvtColor(frame, grayscaleFrame, CV_BGR2GRAY);
 		equalizeHist(grayscaleFrame, grayscaleFrame);
+        
+        // make debugging frame
+        debuggingFrame = frame.clone();
         
 		//create a vector array to store the face found
 		vector<Rect> faces;
@@ -134,13 +144,14 @@ void recording_tracking_main(const char* path) {
             Point pt5(pupils[i][1].x + pupils[i][1].width, pupils[i][1].y + pupils[i][1].height);
             Point pt6(pupils[i][1].x, pupils[i][1].y);
             
-			rectangle(frame, pt1, pt2, cvScalar(0, 255, 0, 0), 1, 8, 0);
-            rectangle(frame, pt3, pt4, cvScalar(255, 0, 0, 0), 1, 8, 0);
-            rectangle(frame, pt5, pt6, cvScalar(255, 0, 0, 0), 1, 8, 0);
+			rectangle(debuggingFrame, pt1, pt2, cvScalar(0, 255, 0, 0), 1, 8, 0);
+            rectangle(debuggingFrame, pt3, pt4, cvScalar(255, 0, 0, 0), 1, 8, 0);
+            rectangle(debuggingFrame, pt5, pt6, cvScalar(255, 0, 0, 0), 1, 8, 0);
             
 		}
         
-        imshow("Video", frame); //show the frame in "MyVideo" window
+        imshow("Video Feed", frame); //show the frame in "MyVideo" window
+        imshow("Debugging Window", debuggingFrame);
         
         if(waitKey(1) == 27) //wait for 'esc' key press for 1 ms. If 'esc' key is pressed, break loop
         {
