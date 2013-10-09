@@ -19,7 +19,7 @@ const int kFastEyeWidth = 50;
 const int kWeightBlurSize = 5;
 const bool kEnableWeight = false;
 const float kWeightDivisor = 150.0;
-const double kGradientThreshold = 50.0;
+const double kGradientThreshold = 5.0;
 
 // Postprocessing
 const bool kEnablePostProcess = true;
