@@ -22,8 +22,8 @@ void detectAndDisplay( cv::Mat frame );
 //-- Note, either copy these two files from opencv/data/haarscascades to your current folder, or change these locations
 cv::String face_cascade_name = "../../res/haarcascade_frontalface_alt.xml";
 cv::CascadeClassifier face_cascade;
-std::string main_window_name = "Capture - Face detection";
-std::string face_window_name = "Capture - Face";
+std::string main_window_name = "Input Video Feed";
+std::string face_window_name = "Annotated Video Feed";
 cv::RNG rng(12345);
 cv::Mat debugImage;
 cv::Mat skinCrCbHist = cv::Mat::zeros(cv::Size(256, 256), CV_8UC1);
@@ -78,7 +78,7 @@ int main( int argc, const char** argv ) {
                     break;
                 }
                 
-                imshow(main_window_name,debugImage);
+                imshow(main_window_name,frame);
                 
                 int c = cv::waitKey(1);
                 if( (char)c == 'c' ) { break; }
@@ -179,6 +179,8 @@ void findEyes(cv::Mat frame_gray, cv::Rect face) {
   leftPupil.x += leftEyeRegion.x;
   leftPupil.y += leftEyeRegion.y;
   // draw eye centers
+    cout << rightPupil << endl;
+    cout << leftPupil << endl;
   circle(debugFace, rightPupil, 3, 1234);
   circle(debugFace, leftPupil, 3, 1234);
 

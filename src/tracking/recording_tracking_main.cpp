@@ -13,6 +13,8 @@
 // HEADER FILES
 /////////////////////////////////////////////
 #include "recording_tracking_main.h"
+#include "findEyeCenter.h"
+#include "constants.h"
 
 
 
@@ -84,7 +86,14 @@ void recording_tracking_main(const char* path) {
     namedWindow("Video Feed",CV_WINDOW_AUTOSIZE);
     moveWindow("Video Feed", 400, 100);
     namedWindow("Debugging Window", CV_WINDOW_AUTOSIZE);
+    /*
+    namedWindow("Right Eye",CV_WINDOW_NORMAL);
+    moveWindow("Right Eye", 10, 600);
+    namedWindow("Left Eye",CV_WINDOW_NORMAL);
+    moveWindow("Left Eye", 100, 600);
+     */
     
+    int fps_count;
     
     // TEMPORARY
     // We need to create threads to allow for concurrent processes
@@ -112,13 +121,15 @@ void recording_tracking_main(const char* path) {
         
 		//create a vector array to store the face found
 		vector<Rect> faces;
-        vector<vector<Rect> > pupils;
+        vector<vector<Rect> > eyes;
+        vector<vector <Point> > pupils;
         
 		//find faces and store them in the vector array
 		face_cascade.detectMultiScale(grayscaleFrame, faces, 1.1, 3, CV_HAAR_FIND_BIGGEST_OBJECT|CV_HAAR_SCALE_IMAGE, Size(30,30));
         
         //locate eye regions from faces vector
-        pupils = locateEyes(faces);
+        eyes = locateEyes(faces);
+    
         
         //smooth image w/ Gaussian Blur based on faces
         //detect pupil locations
@@ -133,20 +144,24 @@ void recording_tracking_main(const char* path) {
             GaussianBlur(grayscaleFrame, blurredFrame, gaussian_size, sigma, sigma, BORDER_DEFAULT);
             
             //perform gradient method for pupil tracking
-            
+            vector<Point> current_pupils;
+            current_pupils = locatePupils(faces[i], eyes[i], blurredFrame);
+            pupils.push_back(current_pupils);
             
 			Point pt1(faces[i].x + faces[i].width, faces[i].y + faces[i].height);
 			Point pt2(faces[i].x, faces[i].y);
             
-            Point pt3(pupils[i][0].x + pupils[i][0].width, pupils[i][0].y + pupils[i][0].height);
-            Point pt4(pupils[i][0].x, pupils[i][0].y);
+            Point pt3(eyes[i][0].x + eyes[i][0].width, eyes[i][0].y + eyes[i][0].height);
+            Point pt4(eyes[i][0].x, eyes[i][0].y);
             
-            Point pt5(pupils[i][1].x + pupils[i][1].width, pupils[i][1].y + pupils[i][1].height);
-            Point pt6(pupils[i][1].x, pupils[i][1].y);
+            Point pt5(eyes[i][1].x + eyes[i][1].width, eyes[i][1].y + eyes[i][1].height);
+            Point pt6(eyes[i][1].x, eyes[i][1].y);
             
 			rectangle(debuggingFrame, pt1, pt2, cvScalar(0, 255, 0, 0), 1, 8, 0);
             rectangle(debuggingFrame, pt3, pt4, cvScalar(255, 0, 0, 0), 1, 8, 0);
             rectangle(debuggingFrame, pt5, pt6, cvScalar(255, 0, 0, 0), 1, 8, 0);
+            circle(debuggingFrame, current_pupils[0], 3, cvScalar(0,0,255,0));
+            circle(debuggingFrame, current_pupils[1], 3, cvScalar(0,0,255,0));
             
 		}
         
@@ -175,7 +190,7 @@ vector<vector<Rect> > locateEyes(vector<Rect> faces) {
     //      mean of right eye center: (x+0.3W, y+0.4H)
     //      mean of left eye center: (x+0.7W, y+0.4H)
     //  
-    vector<vector<Rect> > pupils;
+    vector<vector<Rect> > eyes;
     double eye_box_const = 0.12;
     
     // for all faces in vector, find eye boxes
@@ -204,12 +219,62 @@ vector<vector<Rect> > locateEyes(vector<Rect> faces) {
         insert.push_back(right_eye_box);
         insert.push_back(left_eye_box);
         
-        pupils.push_back(insert);
+        eyes.push_back(insert);
         
     }
     
     
-    return pupils;
+    return eyes;
+    
+}
+
+
+// LOCATE PUPILS
+vector<Point> locatePupils(Rect face, vector<Rect> eyes, Mat blurredFrame) {
+    // Find Eye Centers
+    Point rightPupil = findEyeCenter(blurredFrame,eyes[0],"Right Eye");
+    Point leftPupil = findEyeCenter(blurredFrame,eyes[1],"Left Eye");
+    
+    // get corner regions
+    int eye_region_width = face.width * (kEyePercentWidth/100.0);
+    int eye_region_height = face.width * (kEyePercentHeight/100.0);
+    int eye_region_top = face.height * (kEyePercentTop/100.0);
+    
+    Rect leftRightCornerRegion(eyes[1]);
+    leftRightCornerRegion.width -= leftPupil.x;
+    leftRightCornerRegion.x += leftPupil.x;
+    leftRightCornerRegion.height /= 2;
+    leftRightCornerRegion.y += leftRightCornerRegion.height / 2;
+    
+    Rect leftLeftCornerRegion(eyes[1]);
+    leftLeftCornerRegion.width = leftPupil.x;
+    leftLeftCornerRegion.height /= 2;
+    leftLeftCornerRegion.y += leftLeftCornerRegion.height / 2;
+    
+    Rect rightLeftCornerRegion(eyes[0]);
+    rightLeftCornerRegion.width = rightPupil.x;
+    rightLeftCornerRegion.height /= 2;
+    rightLeftCornerRegion.y += rightLeftCornerRegion.height / 2;
+    
+    Rect rightRightCornerRegion(eyes[0]);
+    rightRightCornerRegion.width -= rightPupil.x;
+    rightRightCornerRegion.x += rightPupil.x;
+    rightRightCornerRegion.height /= 2;
+    rightRightCornerRegion.y += rightRightCornerRegion.height / 2;
+
+    // change eye centers to face coordinates
+    rightPupil.x += eyes[0].x;
+    rightPupil.y += eyes[0].y;
+    leftPupil.x += eyes[1].x;
+    leftPupil.y += eyes[1].y;
+
+    
+    
+
+    vector<Point> ret;
+    ret.push_back(rightPupil);
+    ret.push_back(leftPupil);
+    return ret;
     
 }
 
