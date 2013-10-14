@@ -160,8 +160,13 @@ void recording_tracking_main(const char* path) {
 			rectangle(debuggingFrame, pt1, pt2, cvScalar(0, 255, 0, 0), 1, 8, 0);
             rectangle(debuggingFrame, pt3, pt4, cvScalar(255, 0, 0, 0), 1, 8, 0);
             rectangle(debuggingFrame, pt5, pt6, cvScalar(255, 0, 0, 0), 1, 8, 0);
-            circle(debuggingFrame, current_pupils[0], 3, cvScalar(0,0,255,0));
-            circle(debuggingFrame, current_pupils[1], 3, cvScalar(0,0,255,0));
+            
+            if (current_pupils[0] != pt4) {
+                circle(debuggingFrame, current_pupils[0], 3, cvScalar(0,0,255,0));
+            }
+            if (current_pupils[1] != pt6) {
+                circle(debuggingFrame, current_pupils[1], 3, cvScalar(0,0,255,0));
+            }
             
 		}
         
