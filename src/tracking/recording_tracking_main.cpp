@@ -15,6 +15,7 @@
 #include "recording_tracking_main.h"
 #include "findEyeCenter.h"
 #include "constants.h"
+#include "../GazeTracker.h"
 
 
 
@@ -69,10 +70,16 @@ void recording_tracking_main(const char* path) {
     // BUILD FACE TRACKER
     //
     cout << "Building face tracker..." << endl;
+    
+    /*
 	//create the cascade classifier object used for the face detection
 	CascadeClassifier face_cascade;
 	//use the haarcascade_frontalface_alt.xml library
 	face_cascade.load("../data/haarcascade_frontalface_alt.xml");
+    */
+    
+    GazeTracker gt;
+    gt.train();
     
     
     
@@ -124,11 +131,18 @@ void recording_tracking_main(const char* path) {
         vector<vector<Rect> > eyes;
         vector<vector <Point> > pupils;
         
+        /*
 		//find faces and store them in the vector array
 		face_cascade.detectMultiScale(grayscaleFrame, faces, 1.1, 3, CV_HAAR_FIND_BIGGEST_OBJECT|CV_HAAR_SCALE_IMAGE, Size(30,30));
+         */
         
+        faces = gt.getFaces(grayscaleFrame);
+        
+        /*
         //locate eye regions from faces vector
         eyes = locateEyes(faces);
+         */
+        eyes = gt.getEyes(faces);
     
         
         //smooth image w/ Gaussian Blur based on faces
@@ -145,7 +159,7 @@ void recording_tracking_main(const char* path) {
             
             //perform gradient method for pupil tracking
             vector<Point> current_pupils;
-            current_pupils = locatePupils(faces[i], eyes[i], blurredFrame);
+            current_pupils = gt.getPupils(faces[i], eyes[i], blurredFrame);
             pupils.push_back(current_pupils);
             
 			Point pt1(faces[i].x + faces[i].width, faces[i].y + faces[i].height);
@@ -185,7 +199,7 @@ void recording_tracking_main(const char* path) {
 }
 
 
-
+/*
 // LOCATE EYES
 vector<vector<Rect> > locateEyes(vector<Rect> faces) {
     // this function locates the eye regions from face bounding boxes
@@ -282,7 +296,7 @@ vector<Point> locatePupils(Rect face, vector<Rect> eyes, Mat blurredFrame) {
     return ret;
     
 }
-
+*/
 
 
 
